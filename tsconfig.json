@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "noImplicitAny": true,
+    "removeComments": true,
+    "noLib": false,
+    "allowSyntheticDefaultImports": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "target": "es6",
+    "lib": ["es2015", "es2016", "es2017.object"],
+    "sourceMap": true,
+    "outDir": "./dist",
+    "jsx": "react",
+    "skipLibCheck": true
+  },
+  "exclude": ["node_modules", "./dist"]
+}

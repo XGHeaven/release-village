@@ -1,0 +1,119 @@
+import { Injectable, Logger } from '@nestjs/common'
+import { InjectRepository } from '@nestjs/typeorm'
+import { existsSync } from 'fs'
+import { ConfigService } from 'nestjs-config'
+import { join } from 'path'
+import * as rimraf from 'rimraf'
+import { Record } from '../entity/record.entity'
+import { ContinualReadStream } from '../lib/continual-read-stream'
+import { ContinualWtiteStream } from '../lib/continual-write-stream'
+import { Store } from '../store/store'
+import { Release } from '../type/release'
+import { StorePlace } from '../type/store'
+import { Repository } from 'typeorm'
+import { resolve } from 'url'
+import { DownloadService } from './download.service'
+
+@Injectable()
+export class StoreService {
+  private stores: Store[] = []
+  private logger = new Logger('StoreService')
+
+  constructor(
+    @InjectRepository(Record) private recordRepo: Repository<Record>,
+    private configService: ConfigService,
+    private downloadService: DownloadService,
+  ) {
+    let storeConfig = this.configService.get('store')
+    if (!Array.isArray(storeConfig)) {
+      storeConfig = [storeConfig]
+    }
+
+    for (const config of storeConfig) {
+      if (!config.type) {
+        this.logger.warn('Please special store type in config file')
+        continue
+      }
+      this.stores.push(Store.create(config))
+    }
+
+    this.logger.log(`init ${this.stores.length} stores`)
+  }
+
+  async download(rel: Release): Promise<ContinualReadStream | string> {
+    const savedRecord = await this.recordRepo.findOne({where: {
+      user: rel.user,
+      repo: rel.repo,
+      tag: rel.tag,
+      file: rel.file,
+    }})
+
+    if (savedRecord) {
+      return savedRecord.url
+    }
+
+    const localFile = this.getLoadFile(rel)
+    this.logger.log(localFile)
+    if (existsSync(localFile)) {
+      return new ContinualReadStream(localFile)
+    }
+
+    const resp = await this.downloadService.get(this.getGithubRelease(rel))
+
+    const size = parseInt(resp.headers.get('content-length') || '0', 10)
+    const writable = new ContinualWtiteStream(localFile, size)
+    resp.body.pipe(writable)
+
+    this.putObject(rel, new ContinualReadStream(localFile), size)
+
+    resp.body.on('error', this.logger.error)
+    resp.body.on('end', () => this.logger.log('download end'))
+
+    return new ContinualReadStream(localFile)
+  }
+
+  getDownloadHost(place: StorePlace) {
+    if (place === StorePlace.NOS) {
+      return this.configService.get('store.nos.endpoint')
+    }
+    return ''
+  }
+
+  getDownloadUrl(store: Store, record: Release): string {
+    return resolve(store.urlPrefix, this.getReleasePath(record))
+  }
+
+  getLoadFile(release: Release): string {
+    return join(this.configService.get('download.tmpDir'), release.user, release.repo, release.tag, release.file)
+  }
+
+  getGithubRelease(release: Release): string {
+    return `https://github.com/${release.user}/${release.repo}/releases/download/${release.tag}/${release.file}`
+  }
+
+  getReleasePath(rel: Release): string {
+    return `${rel.user}/${rel.repo}/${rel.tag}/${rel.file}`
+  }
+
+  getStore(): Store {
+    return this.stores[Math.floor(Math.random() * this.stores.length)]
+  }
+
+  putObject(rel: Release, body: NodeJS.ReadableStream, size: number): void {
+    const store = this.getStore()
+    store.putObject(this.getReleasePath(rel), body, size).then(ob => {
+      ob.subscribe(this.logger.log, this.logger.error, () => {
+        this.logger.log('complete')
+        const record = this.recordRepo.create({
+          ...rel,
+          store: store.type,
+          url: this.getDownloadUrl(store, rel),
+        })
+        this.recordRepo.save(record).then(() => {
+          // TODO: 上传完毕之后延迟删除文件
+          // rimraf.sync(this.getLoadFile(rel))
+        }).catch(this.logger.error)
+      })
+    }).catch(this.logger.error)
+  }
+}
