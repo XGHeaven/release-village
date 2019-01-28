@@ -3,15 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm'
 import { existsSync } from 'fs'
 import { ConfigService } from 'nestjs-config'
 import { join } from 'path'
-import * as rimraf from 'rimraf'
+import * as url from 'url'
 import { Record } from '../entity/record.entity'
 import { ContinualReadStream } from '../lib/continual-read-stream'
 import { ContinualWtiteStream } from '../lib/continual-write-stream'
 import { Store } from '../store/store'
 import { Release } from '../type/release'
-import { StorePlace } from '../type/store'
 import { Repository } from 'typeorm'
-import { resolve } from 'url'
 import { DownloadService } from './download.service'
 
 @Injectable()
@@ -62,6 +60,24 @@ export class StoreService {
 
     const size = parseInt(resp.headers.get('content-length') || '0', 10)
     const writable = new ContinualWtiteStream(localFile, size)
+
+    // 是否能够争夺到写入锁
+    const canWrite = await new Promise<boolean>((resolve) => {
+      writable.once('error', e => {
+        resolve(false)
+        this.logger.error(e)
+      })
+
+      writable.once('init', () => {
+        resolve(true)
+      })
+    })
+
+    // 如果不能，那么就直接返回读取流
+    if (!canWrite) {
+      return new ContinualReadStream(localFile)
+    }
+
     resp.body.pipe(writable)
 
     this.putObject(rel, new ContinualReadStream(localFile), size)
@@ -70,17 +86,6 @@ export class StoreService {
     resp.body.on('end', () => this.logger.log('download end'))
 
     return new ContinualReadStream(localFile)
-  }
-
-  getDownloadHost(place: StorePlace) {
-    if (place === StorePlace.NOS) {
-      return this.configService.get('store.nos.endpoint')
-    }
-    return ''
-  }
-
-  getDownloadUrl(store: Store, record: Release): string {
-    return resolve(store.urlPrefix, this.getReleasePath(record))
   }
 
   getLoadFile(release: Release): string {
@@ -101,13 +106,14 @@ export class StoreService {
 
   putObject(rel: Release, body: NodeJS.ReadableStream, size: number): void {
     const store = this.getStore()
-    store.putObject(this.getReleasePath(rel), body, size).then(ob => {
+    const key = this.getReleasePath(rel)
+    store.putObject(key, body, size).then(ob => {
       ob.subscribe(this.logger.log, this.logger.error, () => {
         this.logger.log('complete')
         const record = this.recordRepo.create({
           ...rel,
           store: store.type,
-          url: this.getDownloadUrl(store, rel),
+          url: url.resolve(store.urlPrefix, key),
         })
         this.recordRepo.save(record).then(() => {
           // TODO: 上传完毕之后延迟删除文件

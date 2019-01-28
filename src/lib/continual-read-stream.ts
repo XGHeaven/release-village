@@ -13,6 +13,7 @@ export class ContinualReadStream extends Transform {
    * 获取文件大小重试次数
    */
   private sizeRetry: number = 0
+  private initRetry: number = 0
   public inited: Promise<{
     size: number,
   }> = new Promise((resolve, reject) => {
@@ -24,11 +25,13 @@ export class ContinualReadStream extends Transform {
     this.on('error', reject)
   })
 
-  constructor(private file: string) {
+  constructor(private file: string, private options: {
+    delay?: number,
+  } = {}) {
     super()
-    this.createStream()
-    this.stream.once('readable', this.initSize)
     this.on('drain', this.onDrain)
+    setTimeout(() => this.tryCreateStream(), options.delay || 0)
+    this.tryCreateStream()
   }
 
   initSize = () => {
@@ -51,6 +54,30 @@ export class ContinualReadStream extends Transform {
     this.readSize += 4
     this.emit('inited')
     this.start()
+  }
+
+  /**
+   * 尝试创建流，如果一开始没有数据写入，那么就重试 3 次
+   */
+  tryCreateStream() {
+    this.createStream()
+
+    const error = (e: Error) => {
+      this.stream.off('readable', readable)
+      if (++this.initRetry < 3) {
+        setTimeout(() => this.tryCreateStream(), 1000)
+      } else {
+        this.destroy(e)
+      }
+    }
+
+    const readable = () => {
+      this.stream.off('error', error)
+      this.initSize()
+    }
+
+    this.stream.once('error', error)
+    this.stream.once('readable', readable)
   }
 
   createStream() {

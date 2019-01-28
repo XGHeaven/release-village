@@ -1,6 +1,3 @@
-import * as fs from 'fs'
-import * as mkdirp from 'make-dir'
-import * as rimraf from 'rimraf'
 import { join } from 'path'
 import { ContinualWtiteStream } from './continual-write-stream'
 import { createHash, randomBytes } from 'crypto'
@@ -51,28 +48,28 @@ describe('ContinualWriteStream', () => {
     const stream1 = new ContinualWtiteStream(filepath, 100)
     const stream2 = new ContinualWtiteStream(filepath, 200)
 
-    stream2.on('error', e => {
-      console.log(e)
-    })
+    const stream1error = jest.fn()
+    const stream1finish = jest.fn()
+    const stream2error = jest.fn()
+    const stream2finish = jest.fn()
 
-    stream2.on('finish', () => {
-      console.log('finish 2')
-      console.log(fs.statSync(filepath).size)
-      done()
-    })
-
-    stream1.on('finish', () => {
-      console.log('finish')
-    })
-
-    stream1.on('error', e => {
-      console.error(e, '1')
-    })
+    stream2.on('error', stream2error)
+    stream2.on('finish', stream2finish)
+    stream1.on('finish', stream1finish)
+    stream1.on('error', stream1error)
 
     stream1.write(randomBytes(100))
     stream2.write(randomBytes(200))
 
     stream1.end()
     stream2.end()
+
+    setTimeout(() => {
+      expect(stream1finish).toBeCalled()
+      expect(stream2error).toBeCalled()
+      expect(stream1error).not.toBeCalled()
+      expect(stream2finish).not.toBeCalled()
+      done()
+    }, 1000)
   })
 })

@@ -6,7 +6,7 @@ import { GithubService } from '../service/github.service'
 import { WebifyJsonInterceptor } from '../interceptor/webify-json.interceptor'
 import { normalizeReleaseResult } from '../lib/release'
 
-@Controller('/release')
+@Controller('/')
 @UseInterceptors(WebifyJsonInterceptor)
 export class ReleaseController {
   constructor(private store: StoreService, private github: GithubService) { }
