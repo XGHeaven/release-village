@@ -11,6 +11,7 @@ EXPOSE 3000
 
 COPY --from=builder /app/package* /app/
 COPY --from=builder /app/dist /app/dist
+COPY --from=builder /app/config /app/config
 
 WORKDIR /app
 

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, OnModuleInit } from '@nestjs/common'
 import { ConfigModule, ConfigService } from 'nestjs-config'
 import { resolve } from 'path'
 import { ReleaseController } from './controller/release.controller'
@@ -21,4 +21,9 @@ import { DownloadService } from './service/download.service'
   controllers: [AppController, ReleaseController],
   providers: [StoreService, GithubService, DownloadService],
 })
-export class AppModule { }
+export class AppModule implements OnModuleInit {
+  onModuleInit(): any {
+    // tslint:disable-next-line
+    console.log(JSON.stringify((ConfigService as any).config, null, 2))
+  }
+}
