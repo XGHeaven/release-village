@@ -22,7 +22,6 @@ export class WebifyJsonInterceptor implements NestInterceptor {
         const req: Request = context.getArgByIndex(0)
         const resp: Response = context.getArgByIndex(1)
         const contentType = req.headers.accept || ''
-        Logger.log(contentType)
         if (contentType.indexOf('text/html') !== -1) {
           resp.header('content-type', 'text/html; charset=utf-8')
           return `<html><body><div id="app">${render(json)}</div></body></html>`
