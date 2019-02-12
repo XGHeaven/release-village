@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from 'nestjs-config'
 import { Agent } from 'http'
 import fetch from 'node-fetch'
-import HttpProxyAgent from 'http-proxy-agent'
+
+import HttpProxyAgent = require('http-proxy-agent')
 
 @Injectable()
 export class DownloadService {
