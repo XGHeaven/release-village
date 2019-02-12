@@ -4,7 +4,6 @@ import { StoreService } from '../service/store.service'
 import { Release } from '../type/release'
 import { GithubService } from '../service/github.service'
 import { WebifyJsonInterceptor } from '../interceptor/webify-json.interceptor'
-import { normalizeReleaseResult } from '../lib/release'
 
 @Controller('/')
 @UseInterceptors(WebifyJsonInterceptor)
@@ -13,14 +12,12 @@ export class ReleaseController {
 
   @Get('/:user/:repo')
   async list(@Param('repo') repo: string, @Param('user') user: string) {
-    const releases = await this.github.getTags(user, repo)
-    return releases.map(normalizeReleaseResult(repo, user))
+    return await this.github.getTags(user, repo)
   }
 
   @Get('/:user/:repo/tags/:tag')
   async get(@Param('user') user: string, @Param('repo') repo: string, @Param('tag') tag: string) {
-    const release = await this.github.getTag(user, repo, tag)
-    return normalizeReleaseResult(user, repo)(release)
+    return await this.github.getTag(user, repo, tag)
   }
 
   @Get('/:user/:repo/download/:tag/:file')

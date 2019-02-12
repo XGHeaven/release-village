@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import { ReleaseController } from './controller/release.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Record } from './entity/record.entity'
+import { CommonService } from './service/common.service'
 import { StoreService } from './service/store.service'
 import { AppController } from './controller/app.controller'
 import { GithubService } from './service/github.service'
@@ -19,7 +20,7 @@ import { DownloadService } from './service/download.service'
     TypeOrmModule.forFeature([Record]),
   ],
   controllers: [AppController, ReleaseController],
-  providers: [StoreService, GithubService, DownloadService],
+  providers: [StoreService, GithubService, DownloadService, CommonService],
 })
 export class AppModule implements OnModuleInit {
   onModuleInit(): any {
