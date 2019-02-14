@@ -1,4 +1,4 @@
-import { Injectable, NestInterceptor, ExecutionContext, Logger } from '@nestjs/common'
+import { Injectable, NestInterceptor, ExecutionContext, Logger, UseInterceptors } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Request, Response } from 'express'
@@ -38,4 +38,8 @@ export class WebifyJsonInterceptor implements NestInterceptor {
       }),
     )
   }
+}
+
+export function Webify(target: any, prop: string, desc: any) {
+  return UseInterceptors(WebifyJsonInterceptor)(target, prop, desc)
 }

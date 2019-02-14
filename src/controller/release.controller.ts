@@ -1,9 +1,9 @@
 import { Controller, Get, Param, Res, UseInterceptors } from '@nestjs/common'
 import { Response } from 'express'
+import { WebifyJsonInterceptor } from '../interceptor/webify-json.interceptor'
+import { GithubService } from '../service/github.service'
 import { StoreService } from '../service/store.service'
 import { Release } from '../type/release'
-import { GithubService } from '../service/github.service'
-import { WebifyJsonInterceptor } from '../interceptor/webify-json.interceptor'
 
 @Controller('/')
 @UseInterceptors(WebifyJsonInterceptor)

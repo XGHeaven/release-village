@@ -1,6 +1,7 @@
 import { Module, OnModuleInit } from '@nestjs/common'
 import { ConfigModule, ConfigService } from 'nestjs-config'
 import { resolve } from 'path'
+import { CompactController } from './controller/compact.controller'
 import { ReleaseController } from './controller/release.controller'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Record } from './entity/record.entity'
@@ -19,7 +20,7 @@ import { DownloadService } from './service/download.service'
     }),
     TypeOrmModule.forFeature([Record]),
   ],
-  controllers: [AppController, ReleaseController],
+  controllers: [AppController, CompactController, ReleaseController],
   providers: [StoreService, GithubService, DownloadService, CommonService],
 })
 export class AppModule implements OnModuleInit {
