@@ -61,6 +61,8 @@ export class StoreService {
     const size = parseInt(resp.headers.get('content-length') || '0', 10)
     const writable = new ContinualWtiteStream(localFile, size)
 
+    this.logger.log(`Fetch release of ${rel.file} with ${resp.status}/${size}`)
+
     // 是否能够争夺到写入锁
     const canWrite = await new Promise<boolean>((resolve) => {
       writable.once('error', e => {
@@ -80,10 +82,10 @@ export class StoreService {
 
     resp.body.pipe(writable)
 
-    this.putObject(rel, new ContinualReadStream(localFile), size)
+    // this.putObject(rel, new ContinualReadStream(localFile), size)
 
     resp.body.on('error', this.logger.error)
-    resp.body.on('end', () => this.logger.log('download end'))
+    resp.body.on('end', () => this.logger.log(`Download end of ${rel.file}`))
 
     return new ContinualReadStream(localFile)
   }
@@ -109,7 +111,7 @@ export class StoreService {
     const key = this.getReleasePath(rel)
     store.putObject(key, body, size).then(ob => {
       ob.subscribe(this.logger.log, this.logger.error, () => {
-        this.logger.log('complete')
+        this.logger.log(`Upload success of ${rel.file}`)
         const record = this.recordRepo.create({
           ...rel,
           store: store.type,
