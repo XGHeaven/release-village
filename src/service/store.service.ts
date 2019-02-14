@@ -82,7 +82,7 @@ export class StoreService {
 
     resp.body.pipe(writable)
 
-    // this.putObject(rel, new ContinualReadStream(localFile), size)
+    this.putObject(rel, new ContinualReadStream(localFile), size)
 
     resp.body.on('error', this.logger.error)
     resp.body.on('end', () => this.logger.log(`Download end of ${rel.file}`))

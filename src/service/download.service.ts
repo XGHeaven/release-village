@@ -3,7 +3,7 @@ import { ConfigService } from 'nestjs-config'
 import { Agent } from 'http'
 import fetch from 'node-fetch'
 
-import HttpProxyAgent = require('http-proxy-agent')
+import ProxyAgent = require('proxy-agent')
 
 @Injectable()
 export class DownloadService {
@@ -11,7 +11,7 @@ export class DownloadService {
   constructor(private config: ConfigService) {
     const proxy = config.get('download.proxy')
     if (proxy) {
-      this.agent = new HttpProxyAgent(proxy)
+      this.agent = new ProxyAgent(proxy)
     }
   }
 
