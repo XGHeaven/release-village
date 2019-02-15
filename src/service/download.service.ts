@@ -29,6 +29,7 @@ export class DownloadService implements OnModuleInit {
         })
 
         this.agent = new ProxyAgent(uri)
+        resolve()
       })
 
     }
