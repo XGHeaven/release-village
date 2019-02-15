@@ -26,4 +26,11 @@ export class AppController {
   async index() {
     return introduce
   }
+
+  @Get('/health')
+  async health() {
+    return {
+      status: 'health',
+    }
+  }
 }
