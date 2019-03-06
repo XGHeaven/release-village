@@ -4,6 +4,10 @@
   "description": "description",
   "author": "XGHeaven",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XGHeaven/release-village"
+  },
   "scripts": {
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\"",

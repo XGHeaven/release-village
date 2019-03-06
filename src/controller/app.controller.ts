@@ -15,7 +15,7 @@ const introduce = {
     '2. Change github.com origin to release-village.xgheaven.com',
     '3. Choose which release you want to download',
   ],
-  github: 'TODO',
+  github: 'https://github.com/XGHeaven/release-village',
   poweredBy: ['https://163yum.com/nos'],
 }
 
