@@ -1,37 +1,19 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common'
-import { lookup } from 'dns'
-import { ConfigService } from 'nestjs-config'
+import { Injectable, Logger } from '@nestjs/common'
 import { Agent } from 'http'
+import { ConfigService } from 'nestjs-config'
 import fetch from 'node-fetch'
-import { parse } from 'url'
-
-import ProxyAgent = require('proxy-agent')
+import HttpsProxyAgent = require('https-proxy-agent')
 
 @Injectable()
-export class DownloadService implements OnModuleInit {
-  private agent?: Agent
+export class DownloadService {
+  private readonly agent?: Agent
   private logger: Logger = new Logger('DownloadService', false)
-  constructor(private config: ConfigService) { }
 
-  async onModuleInit() {
-    const proxyString = this.config.get('download.proxy')
-    if (proxyString) {
-      const uri = parse(proxyString)
-      // 自己解析 ip 地址
-      await new Promise((resolve, reject) => {
-        lookup(uri.hostname!, (e, ip) => {
-          if (e) {
-            this.logger.warn('Found proxy config but cannot lookup dns, so disabled.')
-            return
-          }
-
-          uri.hostname = ip
-        })
-
-        this.agent = new ProxyAgent(uri)
-        resolve()
-      })
-
+  constructor(private config: ConfigService) {
+    const proxy = this.config.get('download.proxy')
+    if (proxy) {
+      this.agent = new HttpsProxyAgent(proxy)
+      this.logger.log(`Enable proxy with "${proxy}"`)
     }
   }
 

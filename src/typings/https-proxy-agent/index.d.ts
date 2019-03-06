@@ -1,4 +1,4 @@
-declare module 'proxy-agent' {
+declare module 'https-proxy-agent' {
   import { Agent } from 'http'
 
   class ProxyAgentConstructor extends Agent {
