@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Res, UseInterceptors } from '@nestjs/common'
+import { Controller, Get, Header, Param, Res, UseInterceptors } from '@nestjs/common'
 import { Response } from 'express'
 import { WebifyJsonInterceptor } from '../interceptor/webify-json.interceptor'
 import { GithubService } from '../service/github.service'
@@ -21,6 +21,7 @@ export class ReleaseController {
   }
 
   @Get('/:user/:repo/download/:tag/:file')
+  @Header('content-type', 'application/octet-stream')
   async download(@Param() param: Release, @Res() resp: Response) {
     const data = await this.store.download(param)
 
