@@ -15,7 +15,7 @@ import { DownloadService } from './download.service'
 @Injectable()
 export class StoreService {
   private stores: Store[] = []
-  private logger = new Logger('StoreService')
+  private logger = new Logger('StoreService', false)
 
   constructor(
     @InjectRepository(Record) private recordRepo: Repository<Record>,
@@ -110,7 +110,9 @@ export class StoreService {
     const store = this.getStore()
     const key = this.getReleasePath(rel)
     store.putObject(key, body, size).then(ob => {
-      ob.subscribe(this.logger.log, this.logger.error, () => {
+      ob.subscribe((percent) => {
+        this.logger.log(`${key} --- ${Math.floor(percent * 100)}%`)
+      }, this.logger.error, () => {
         this.logger.log(`Upload success of ${rel.file}`)
         const record = this.recordRepo.create({
           ...rel,
