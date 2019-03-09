@@ -1,79 +1,39 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo_text.svg" width="320" alt="Nest Logo" /></a>
-</p>
+# Release Village
 
-[travis-image]: https://api.travis-ci.org/nestjs/nest.svg?branch=master
-[travis-url]: https://travis-ci.org/nestjs/nest
-[linux-image]: https://img.shields.io/travis/nestjs/nest/master.svg?label=linux
-[linux-url]: https://travis-ci.org/nestjs/nest
-  
-  <p align="center">A progressive <a href="http://nodejs.org" target="blank">Node.js</a> framework for building efficient and scalable server-side applications, heavily inspired by <a href="https://angular.io" target="blank">Angular</a>.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore"><img src="https://img.shields.io/npm/dm/@nestjs/core.svg" alt="NPM Downloads" /></a>
-<a href="https://travis-ci.org/nestjs/nest"><img src="https://api.travis-ci.org/nestjs/nest.svg?branch=master" alt="Travis" /></a>
-<a href="https://travis-ci.org/nestjs/nest"><img src="https://img.shields.io/travis/nestjs/nest/master.svg?label=linux" alt="Linux" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#5" alt="Coverage" /></a>
-<a href="https://gitter.im/nestjs/nestjs?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=body_badge"><img src="https://badges.gitter.im/nestjs/nestjs.svg" alt="Gitter" /></a>
-<a href="https://opencollective.com/nest#backer"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec"><img src="https://img.shields.io/badge/Donate-PayPal-dc3d53.svg"/></a>
-  <a href="https://twitter.com/nestframework"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+一个服务于中国的 Github Release Mirror 下载服务，用于给那些没有翻墙条件或者懒得翻墙的人下载 Github Release 文件的能力。
 
-## Description
+## Feature
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- 默认缓存到国内的云存储商，依托国内云存储的优势，加快下载能力
+- 易于操作，只需要在 Github Release 界面将 `https://github.com` 地址替换为 `https://relv.xgheaven.com.cn` 即可使用。（不排除后续更换简易域名的可能性）
+- 支持集群部署，在仅需要一个数据库的情况下保证高可用和高并发
+
+## Usage
+
+1. 找到你想要下载的 Github Release 地址
+2. 将 `https://github.com` 替换为 `https://relv.xgheaven.com.cn`
+3. 选择需要下载的文件，点击 `mirrorDownloadLink` 地址即可下载
+
+PS: 如果这个文件是第一次被下载，那么可能会下载缓慢（需要一遍缓存一遍发送给你），请耐心等待下载或者等待缓存完毕只有再尝试下载。
 
 ## Installation
 
+当然，同样提供私有化部署方案，只需要 clone 本项目，并按照如下操作即可启动私有化版本：
+
+（请设置好对应的环境变量）
+
 ```bash
 $ npm install
-```
-
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# incremental rebuild (webpack)
-$ npm run webpack
-$ npm run start:hmr
-
-# production mode
+$ npm run build
 $ npm run start:prod
 ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
+或者直接使用构建完成的 Docker 镜像：`xgheaven/release-village`
 
 ## Support
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+如果你觉得很有帮助，欢迎 Star，反馈以及提意见。
 
-## Stay in touch
+## Thanks for
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-  Nest is [MIT licensed](LICENSE).
+感谢 [Nestjs](https://nestjs.com) 框架
