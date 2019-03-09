@@ -11,17 +11,17 @@ export class GithubService {
 
   normalizeRelease(user: string, repo: string, release: ReposListReleasesResponseItem) {
     return {
-      url: this.common.getFullUrl(`/${user}/${repo}/tags/${release.tag_name}`),
-      originalUrl: release.html_url,
+      mirrorUrl: this.common.getFullUrl(`/${user}/${repo}/tags/${release.tag_name}`),
+      githubUrl: release.html_url,
       draft: release.draft,
       preRelease: release.prerelease,
       createdAt: release.created_at,
       publishedAt: release.published_at,
       asstes: release.assets.map(asset => ({
         name: asset.name,
-        downloadUrl: this.common.getFullUrl(`/${user}/${repo}/download/${release.tag_name}/${asset.name}`),
-        originalDownloadUrl: asset.browser_download_url,
-        state: asset.state,
+        mirrorDownloadUrl: this.common.getFullUrl(`/${user}/${repo}/download/${release.tag_name}/${asset.name}`),
+        githubDownloadUrl: asset.browser_download_url,
+        size: asset.size,
       })),
     }
   }
