@@ -17,12 +17,12 @@ export class ContinualReadStream extends Transform {
   public inited: Promise<{
     size: number,
   }> = new Promise((resolve, reject) => {
-    this.on('inited', () => {
+    this.once('inited', () => {
       resolve({
         size: this.size - 4,
       })
     })
-    this.on('error', reject)
+    this.once('error', reject)
   })
 
   constructor(private file: string, private options: {
@@ -31,7 +31,6 @@ export class ContinualReadStream extends Transform {
     super()
     this.on('drain', this.onDrain)
     setTimeout(() => this.tryCreateStream(), options.delay || 0)
-    this.tryCreateStream()
   }
 
   initSize = () => {
